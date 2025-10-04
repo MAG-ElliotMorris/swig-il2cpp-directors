@@ -169,48 +169,90 @@ SWIGEXPORT void SWIGSTDCALL SWIGRegisterExceptionArgumentCallbacks_$module(
                                 ExceptionArgumentDelegate argumentNullDelegate,
                                 ExceptionArgumentDelegate argumentOutOfRangeDelegate);
 
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingApplicationException(string message) {
       SWIGPendingException.Set(new global::System.ApplicationException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingArithmeticException(string message) {
       SWIGPendingException.Set(new global::System.ArithmeticException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingDivideByZeroException(string message) {
       SWIGPendingException.Set(new global::System.DivideByZeroException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingIndexOutOfRangeException(string message) {
       SWIGPendingException.Set(new global::System.IndexOutOfRangeException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingInvalidCastException(string message) {
       SWIGPendingException.Set(new global::System.InvalidCastException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingInvalidOperationException(string message) {
       SWIGPendingException.Set(new global::System.InvalidOperationException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingIOException(string message) {
       SWIGPendingException.Set(new global::System.IO.IOException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingNullReferenceException(string message) {
       SWIGPendingException.Set(new global::System.NullReferenceException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingOutOfMemoryException(string message) {
       SWIGPendingException.Set(new global::System.OutOfMemoryException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingOverflowException(string message) {
       SWIGPendingException.Set(new global::System.OverflowException(message, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionDelegate))]
+    #endif
     static void SetPendingSystemException(string message) {
       SWIGPendingException.Set(new global::System.SystemException(message, SWIGPendingException.Retrieve()));
     }
 
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionArgumentDelegate))]
+    #endif
     static void SetPendingArgumentException(string message, string paramName) {
       SWIGPendingException.Set(new global::System.ArgumentException(message, paramName, SWIGPendingException.Retrieve()));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionArgumentDelegate))]
+    #endif
     static void SetPendingArgumentNullException(string message, string paramName) {
       global::System.Exception e = SWIGPendingException.Retrieve();
       if (e != null) message = message + " Inner Exception: " + e.Message;
       SWIGPendingException.Set(new global::System.ArgumentNullException(paramName, message));
     }
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (ExceptionArgumentDelegate))]
+    #endif
     static void SetPendingArgumentOutOfRangeException(string message, string paramName) {
       global::System.Exception e = SWIGPendingException.Retrieve();
       if (e != null) message = message + " Inner Exception: " + e.Message;
@@ -302,6 +344,9 @@ static SWIG_CSharpStringHelperCallback SWIG_csharp_string_callback = NULL;
     [global::System.Runtime.InteropServices.DllImport("$dllimport", EntryPoint="SWIGRegisterStringCallback_$module")]
     public static extern void SWIGRegisterStringCallback_$module(SWIGStringDelegate stringDelegate);
 
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (SWIGStringDelegate))]
+    #endif
     static string CreateString(string cString) {
       return cString;
     }

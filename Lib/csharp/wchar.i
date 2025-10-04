@@ -39,10 +39,16 @@ static void * SWIG_csharp_wstring_callback(const wchar_t *s) {
     [global::System.Runtime.InteropServices.DllImport("$dllimport", EntryPoint="SWIGRegisterWStringCallback_$module")]
     public static extern void SWIGRegisterWStringCallback_$module(SWIGWStringDelegate wstringUTF16Delegate, SWIGWStringDelegate wstringUTF32Delegate);
 
+  #if !UNITY_EDITOR && ENABLE_IL2CPP
+  [AOT.MonoPInvokeCallback (typeof (SWIGWStringDelegate))]
+  #endif
     public static string CreateWStringFromUTF16([global::System.Runtime.InteropServices.MarshalAs(global::System.Runtime.InteropServices.UnmanagedType.LPWStr)]global::System.IntPtr cString, int length) {
       return global::System.Runtime.InteropServices.Marshal.PtrToStringUni(cString, length);
     }
 
+  #if !UNITY_EDITOR && ENABLE_IL2CPP
+  [AOT.MonoPInvokeCallback (typeof (SWIGWStringDelegate))]
+  #endif
     public static string CreateWStringFromUTF32([global::System.Runtime.InteropServices.MarshalAs(global::System.Runtime.InteropServices.UnmanagedType.LPWStr)]global::System.IntPtr cString, int length) {
       if (length == 0)
         return string.Empty;
@@ -92,11 +98,17 @@ static SWIG_CSharpWStringExceptionHelperCallback SWIG_csharp_ApplicationExceptio
     [global::System.Runtime.InteropServices.DllImport("$dllimport", EntryPoint="SWIGRegisterWStringExceptionCallback_$module")]
     public static extern void SWIGRegisterWStringExceptionCallback_$module(SWIGWStringExceptionDelegate applicationExceptionUTF16Delegate, SWIGWStringExceptionDelegate applicationExceptionUTF32Delegate);
 
+    #if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (SWIGWStringExceptionDelegate))]
+    #endif
     static void SetPendingApplicationExceptionUTF16([global::System.Runtime.InteropServices.MarshalAs(global::System.Runtime.InteropServices.UnmanagedType.LPWStr)]global::System.IntPtr cString, int length) {
       string message = SWIGWStringHelper.CreateWStringFromUTF16(cString, length);
       SWIGPendingException.Set(new global::System.ApplicationException(message, SWIGPendingException.Retrieve()));
     }
 
+    if !UNITY_EDITOR && ENABLE_IL2CPP
+    [AOT.MonoPInvokeCallback (typeof (SWIGWStringExceptionDelegate))]
+    #endif
     static void SetPendingApplicationExceptionUTF32([global::System.Runtime.InteropServices.MarshalAs(global::System.Runtime.InteropServices.UnmanagedType.LPWStr)]global::System.IntPtr cString, int length) {
       string message = SWIGWStringHelper.CreateWStringFromUTF32(cString, length);
       SWIGPendingException.Set(new global::System.ApplicationException(message, SWIGPendingException.Retrieve()));
