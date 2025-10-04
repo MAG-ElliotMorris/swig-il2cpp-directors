@@ -1030,6 +1030,19 @@ SWIG_CSBODY_TYPEWRAPPER(internal, protected, internal, SWIGTYPE)
     }
   }
 
+%typemap(csdisposing_director, methodname="Dispose", methodmodifiers="protected", parameters="bool disposing") SWIGTYPE {
+    lock(this) {
+      if (swigCPtr.Handle != global::System.IntPtr.Zero) {
+        if (swigCMemOwn) {
+          swigCMemOwn = false;
+          $imcall;
+        }
+        IL2CPPInstances.Remove(swigCPtr.Handle);
+        swigCPtr = new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero);
+      }
+    }
+  }
+
 %typemap(csdisposing_derived, methodname="Dispose", methodmodifiers="protected", parameters="bool disposing") SWIGTYPE {
     lock(this) {
       if (swigCPtr.Handle != global::System.IntPtr.Zero) {
@@ -1037,6 +1050,21 @@ SWIG_CSBODY_TYPEWRAPPER(internal, protected, internal, SWIGTYPE)
           swigCMemOwn = false;
           $imcall;
         }
+        swigCPtr = new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero);
+      }
+      base.Dispose(disposing);
+    }
+  }
+
+
+%typemap(csdisposing_derived_director, methodname="Dispose", methodmodifiers="protected", parameters="bool disposing") SWIGTYPE {
+    lock(this) {
+      if (swigCPtr.Handle != global::System.IntPtr.Zero) {
+        if (swigCMemOwn) {
+          swigCMemOwn = false;
+          $imcall;
+        }
+        IL2CPPInstances.Remove(swigCPtr.Handle);
         swigCPtr = new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero);
       }
       base.Dispose(disposing);

@@ -1952,6 +1952,11 @@ public:
 	   typemapLookup(n, "csbody", typemap_lookup_type, WARN_CSHARP_TYPEMAP_CSBODY_UNDEF),	// main body of class
 	   NIL);
 
+    //Print the static map for IL2CPP callbacks above dispose behaviour
+    if(feature_director){
+      Printf(proxy_class_def, "  private static System.Collections.Generic.Dictionary<global::System.IntPtr, global::System.WeakReference<%s>> IL2CPPInstances = new();\n", proxy_class_name);
+    }
+
     // C++ destructor is wrapped by the Finalize and Dispose methods
 
     const char *tmap_method = derived ? "csdestruct_derived" : "csdestruct";
@@ -1969,23 +1974,25 @@ public:
 	  tmap_method, proxy_class_name);
     }
 
-    tmap_method = derived ? "csdisposing_derived" : "csdisposing";
+    //The director versions are custom on this branch, which remove the Cptr.Handle from the static IL2CPP map.
+    tmap_method = derived ? (feature_director ? "csdisposing_derived_director" : "csdisposing_derived") : 
+                            (feature_director ? "csdisposing_director" : "csdisposing");
+
     String *destruct = NewString("");
     attributes = NewHash();
     const String *destruct_methodname = NULL;
     const String *destruct_methodmodifiers = NULL;
     const String *destruct_parameters = NULL;
-    if (derived) {
-      tm = typemapLookup(n, "csdisposing_derived", typemap_lookup_type, WARN_NONE, attributes);
-      destruct_methodname = Getattr(attributes, "tmap:csdisposing_derived:methodname");
-      destruct_methodmodifiers = Getattr(attributes, "tmap:csdisposing_derived:methodmodifiers");
-      destruct_parameters = Getattr(attributes, "tmap:csdisposing_derived:parameters");
-    } else {
-      tm = typemapLookup(n, "csdisposing", typemap_lookup_type, WARN_NONE, attributes);
-      destruct_methodname = Getattr(attributes, "tmap:csdisposing:methodname");
-      destruct_methodmodifiers = Getattr(attributes, "tmap:csdisposing:methodmodifiers");
-      destruct_parameters = Getattr(attributes, "tmap:csdisposing:parameters");
-    }
+
+    const String* methodname_destruct_tmap = NewStringf("tmap:%s:methodname", tmap_method);
+    const String* methodmodifiers_destruct_tmap = NewStringf("tmap:%s:methodmodifiers", tmap_method);
+    const String* parameters_destruct_tmap = NewStringf("tmap:%s:parameters", tmap_method);
+
+    tm = typemapLookup(n, tmap_method, typemap_lookup_type, WARN_NONE, attributes);
+    destruct_methodname = Getattr(attributes, methodname_destruct_tmap);
+    destruct_methodmodifiers = Getattr(attributes, methodmodifiers_destruct_tmap);
+    destruct_parameters = Getattr(attributes, parameters_destruct_tmap);
+ 
     if (tm && *Char(tm)) {
       if (!destruct_methodname) {
 	Swig_error(Getfile(n), Getline(n), "No methodname attribute defined in %s typemap for %s\n", tmap_method, proxy_class_name);
@@ -2034,6 +2041,7 @@ public:
 	Printf(proxy_class_code, "    if (SwigDerivedClassHasMethod(\"%s\", swigMethodTypes%s))\n", method, methid);
 	Printf(proxy_class_code, "      swigDelegate%s = new SwigDelegate%s_%s(SwigDirectorMethod%s);\n", methid, proxy_class_name, methid, overname);
       }
+      Printf(proxy_class_code, "    IL2CPPInstances[swigCPtr.Handle] = new global::System.WeakReference<%s>(this);\n", proxy_class_name);
       String *director_connect_method_name = Swig_name_member(getNSpace(), getClassPrefix(), "director_connect");
       Printf(proxy_class_code, "    %s.%s(swigCPtr", imclass_name, director_connect_method_name);
       for (i = first_class_dmethod; i < curr_class_dmethod; ++i) {
@@ -4084,8 +4092,19 @@ public:
 	  if (!ignored_method)
 	    Printf(director_delegate_definitions, "  %s\n", im_directoroutattributes);
 	}
+  
+  // We'd need to do something like this to support callback overloads (and get this accepted upstream)
+  // Doable, but I'm not doing this for a prototype, or possibly ever.
+  //for (i = first_class_dmethod; i < curr_class_dmethod; ++i) {}
+  //UpcallData *udata = Getitem(dmethods_seq, i);
+  //String *methid = Getattr(udata, "class_methodidx");
+  const String* unityil2cppguard = NewStringf("#if !UNITY_EDITOR && ENABLE_IL2CPP\n");
+  const String* swigdelegatename =  NewStringf("SwigDelegate%s_%s", classname, /*methid*/ "0");
+  const String* aotmonopcallbackattribute = NewStringf("  [AOT.MonoPInvokeCallback (typeof (%s))]", swigdelegatename);
+  const String* fullaotguard = NewStringf("%s%s\n#endif\n", unityil2cppguard, aotmonopcallbackattribute);
 
-	Printf(callback_def, "  private %s SwigDirectorMethod%s(", tm, overloaded_name);
+  Printf(callback_def, "%s", fullaotguard);
+	Printf(callback_def, "  private static %s SwigDirectorMethod%s(", tm, overloaded_name);
 	const String *csdirectordelegatemodifiers = Getattr(n, "feature:csdirectordelegatemodifiers");
 	String *modifiers = (csdirectordelegatemodifiers ? NewStringf("%s%s", csdirectordelegatemodifiers, Len(csdirectordelegatemodifiers) > 0 ? " " : "") : NewStringf("public "));
 	Printf(director_delegate_definitions, "  %sdelegate %s", modifiers, tm);
@@ -4335,13 +4354,16 @@ public:
     Append(declaration, ";\n");
 
     /* Finish off the inherited upcall's definition */
-
-    Printf(callback_def, "%s)", delegate_parms);
+// Add ObjectData to delegate (il2cpp)
+    Printf(callback_def, "%s, global::System.IntPtr ObjectData)", delegate_parms);
     Printf(callback_def, " {\n");
 
     /* Emit the intermediate class's upcall to the actual class */
 
-    String *upcall = NewStringf("%s(%s)", symname, imcall_args);
+    Printf(callback_code, "    if (IL2CPPInstances.TryGetValue(ObjectData, out var wr) && wr.TryGetTarget(out var self))\n    {\n");
+    String *upcall = NewStringf("  self.%s(%s) ", symname, imcall_args);
+    
+    /* Add something to the finalizer to clear the static dictionary of any dictionary entries*/
 
     if ((tm = Swig_typemap_lookup("csdirectorout", n, "", 0))) {
       substituteClassname(returntype, tm);
@@ -4366,6 +4388,7 @@ public:
 	Printv(callback_code, "\n", terminator_code, NIL);
     }
 
+    Printf(callback_code, "    }\n");
     Printf(callback_code, "  }\n");
     Delete(upcall);
 
@@ -4373,7 +4396,8 @@ public:
       if (!is_void)
 	Printf(w->code, "jresult = (%s) ", c_ret_type);
 
-      Printf(w->code, "swig_callback%s(%s);\n", overloaded_name, jupcall_args);
+      //Always pass the this pointer as the last argument
+      Printf(w->code, "swig_callback%s(%s,%s);\n", overloaded_name, jupcall_args, "(void*)this");
 
       if (!is_void) {
 	String *jresult_str = NewString("jresult");
@@ -4461,10 +4485,12 @@ public:
       */
 
       Printf(director_callback_typedefs, "    typedef %s (SWIGSTDCALL* SWIG_Callback%s_t)(", c_ret_type, methid);
-      Printf(director_callback_typedefs, "%s);\n", callback_typedef_parms);
+      //Add a void* for object data (il2cpp)
+      Printf(director_callback_typedefs, "%s, void*);\n", callback_typedef_parms);
       Printf(director_callbacks, "    SWIG_Callback%s_t swig_callback%s;\n", methid, overloaded_name);
 
-      Printf(director_delegate_definitions, " SwigDelegate%s_%s(%s);\n", classname, methid, delegate_parms);
+      //Add ObjectData (il2cpp)
+      Printf(director_delegate_definitions, " SwigDelegate%s_%s(%s, global::System.IntPtr ObjectData);\n", classname, methid, delegate_parms);
       Printf(director_delegate_instances, "  private SwigDelegate%s_%s swigDelegate%s;\n", classname, methid, methid);
       Printf(director_method_types, "  private static global::System.Type[] swigMethodTypes%s = new global::System.Type[] { %s };\n", methid, proxy_method_types);
       Printf(director_connect_parms, "SwigDirector%s%s delegate%s", classname, methid, methid);
