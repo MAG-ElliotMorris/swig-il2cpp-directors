@@ -1,3 +1,11 @@
+> [!IMPORTANT]  
+> This fork is a prototype to demonstrate IL2CPP/AOT compilation support in the c# 
+> SWIG layer. It's not implemented overly neatly. Notably
+> - I leak all over the shop
+> - Does not have support for callback overloads
+>
+> Neither are huge deals, will fix if this goes anywhere.
+
 SWIG (Simplified Wrapper and Interface Generator)
 
 Tagline: SWIG is a compiler that integrates C and C++ with languages
