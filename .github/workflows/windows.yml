@@ -1,17 +1,6 @@
 name: windows
 
-on:
-  push:
-    paths-ignore:
-      - 'CHANGES*'
-      - 'Doc/**'
-      - 'appveyor.yml'
-  pull_request:
-    branches: master
-    paths-ignore:
-      - 'CHANGES*'
-      - 'Doc/**'
-      - 'appveyor.yml'
+on: workflow_dispatch
 
 permissions:
   contents: read
