@@ -79,3 +79,10 @@ jobs:
       run: |
           cmake --install .
           C:\Tools\swig\bin\swig.exe -version
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: swig-windows-cmake
+        path: C:\Tools\swig\
+        if-no-files-found: error
