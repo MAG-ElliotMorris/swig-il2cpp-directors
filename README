@@ -13,6 +13,12 @@
 >
 > In the "good enough" spirit, all csharp code generated from this fork uses the static IL2CPP
 > style dispatch, which should be fine and work even in non-IL2CPP compiled code.
+>
+> There are a few other efforts to do this, the most obvious being here :
+> https://github.com/swig/swig/pull/1262
+> This is branched off an older SWIG (2018) so didn't crack open that can of worms, we want
+> some of the new features I imagine. Still, might be nice to collect the folk who are
+> interested in this because they do exist.
 
 
 SWIG (Simplified Wrapper and Interface Generator)
