@@ -1,3 +1,20 @@
+> [!NOTE]  
+> This is a fork of the excellent SWIG project that adds IL2CPP support for the csharp target.
+> This is explicitly to enable Unity projects compiling under that mode.
+> This is achieved by appending the [AOT.MonoPInvokeCallback] attribute to relevant callbacks,
+> as well as shimming director types to use static methods (a IL2CPP requirement) rather
+> than object local methods. This is achieved with the use of a static map of CPtr's to dispatch
+> to the relevant object once the call reaches back into C-sharp-land.
+> 
+> The implementation is "good enough", although we would like to get this merged upstream in
+> a perfect world. That would require at the least adding an option flag to this behavior.
+> It would also likely involve adding capability for director callback-overloads, which are
+> not supported in this fork, despite it being quite possible.
+>
+> In the "good enough" spirit, all csharp code generated from this fork uses the static IL2CPP
+> style dispatch, which should be fine and work even in non-IL2CPP compiled code.
+
+
 SWIG (Simplified Wrapper and Interface Generator)
 
 Tagline: SWIG is a compiler that integrates C and C++ with languages
