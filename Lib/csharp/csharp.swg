@@ -1037,8 +1037,9 @@ SWIG_CSBODY_TYPEWRAPPER(internal, protected, internal, SWIGTYPE)
           swigCMemOwn = false;
           $imcall;
         }
-        IL2CPPInstances.Remove(swigCPtr.Handle);
+        var key = swigCPtr.Handle;
         swigCPtr = new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero);
+        IL2CPPInstances.TryRemove(key, out _);
       }
     }
   }
@@ -1064,8 +1065,9 @@ SWIG_CSBODY_TYPEWRAPPER(internal, protected, internal, SWIGTYPE)
           swigCMemOwn = false;
           $imcall;
         }
-        IL2CPPInstances.Remove(swigCPtr.Handle);
+        var key = swigCPtr.Handle;
         swigCPtr = new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero);
+        IL2CPPInstances.TryRemove(key, out _);
       }
       base.Dispose(disposing);
     }
