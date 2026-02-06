@@ -1954,7 +1954,7 @@ public:
 
     //Print the static map for IL2CPP callbacks above dispose behaviour
     if(feature_director){
-      Printf(proxy_class_def, "  private static System.Collections.Generic.Dictionary<global::System.IntPtr, global::System.WeakReference<%s>> IL2CPPInstances = new();\n", proxy_class_name);
+      Printf(proxy_class_def, "  private static System.Collections.Concurrent.ConcurrentDictionary<global::System.IntPtr, global::System.WeakReference<%s>> IL2CPPInstances = new();\n", proxy_class_name);
     }
 
     // C++ destructor is wrapped by the Finalize and Dispose methods
